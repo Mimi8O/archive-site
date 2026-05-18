@@ -1,11 +1,13 @@
+const NOTE_MAX = 200;
+
 // ── State ──────────────────────────────────────
-let currentCat = 'fujifilm';
+let currentCat  = 'fujifilm';
 let detailPhotos = [];   // photos in current category
-let detailIndex = 0;     // which photo is open
+let detailIndex  = 0;    // which photo (entry) is open
+let slideIndex   = 0;    // which image within the photo's images[]
 
 // ── Elements ───────────────────────────────────
 const grid        = document.getElementById('photo-grid');
-const galleryView = document.getElementById('gallery-view');
 const detailView  = document.getElementById('detail-view');
 const detailImg   = document.getElementById('detail-img');
 const detailTitle = document.getElementById('detail-title');
@@ -41,30 +43,60 @@ function renderGallery(cat) {
   });
 }
 
-// ── Open detail view ───────────────────────────
+// ── Open / render detail ───────────────────────
 function openDetail(cat, index) {
   detailPhotos = PHOTOS.filter(p => p.cat === cat);
-  detailIndex = index;
+  detailIndex  = index;
+  slideIndex   = 0;
   renderDetail();
   detailView.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
 
 function renderDetail() {
-  const photo = detailPhotos[detailIndex];
-  detailImg.src = photo.src;
-  detailImg.alt = photo.title;
-  detailTitle.textContent = photo.title;
-  detailDate.textContent = photo.date;
-  detailCamera.textContent = photo.camera;
-  detailNote.textContent = photo.note;
-  detailPage.textContent = photo.page;
+  const photo  = detailPhotos[detailIndex];
+  const images = photo.images && photo.images.length ? photo.images : [photo.src];
+  const note   = photo.note || '';
+  const charCount = [...note.replace(/\n/g, '')].length; // count excluding newlines
 
-  // Show/hide nav buttons
-  sliderPrev.style.opacity = detailIndex === 0 ? '0.3' : '1';
-  sliderPrev.style.pointerEvents = detailIndex === 0 ? 'none' : 'auto';
-  sliderNext.style.opacity = detailIndex === detailPhotos.length - 1 ? '0.3' : '1';
-  sliderNext.style.pointerEvents = detailIndex === detailPhotos.length - 1 ? 'none' : 'auto';
+  // Image
+  detailImg.src = images[slideIndex] || photo.src;
+  detailImg.alt = photo.title;
+
+  // Meta
+  detailTitle.textContent  = photo.title;
+  detailDate.textContent   = photo.date;
+  detailCamera.textContent = photo.camera;
+
+  // Note (truncate to 200 chars display)
+  detailNote.textContent = note;
+
+  // Page counter — show actual char count / 200
+  detailPage.textContent = `${charCount}/${NOTE_MAX}`;
+  detailPage.style.color = charCount > NOTE_MAX ? '#c0392b' : '';
+
+  // Image slider buttons
+  sliderPrev.style.opacity      = slideIndex === 0 ? '0.3' : '1';
+  sliderPrev.style.pointerEvents= slideIndex === 0 ? 'none' : 'auto';
+  sliderNext.style.opacity      = slideIndex === images.length - 1 ? '0.3' : '1';
+  sliderNext.style.pointerEvents= slideIndex === images.length - 1 ? 'none' : 'auto';
+
+  // Image counter dot indicator
+  renderDots(images.length);
+}
+
+function renderDots(total) {
+  let dots = document.getElementById('slide-dots');
+  if (!dots) {
+    dots = document.createElement('div');
+    dots.id = 'slide-dots';
+    dots.className = 'slide-dots';
+    document.querySelector('.detail-photo-wrap').appendChild(dots);
+  }
+  if (total <= 1) { dots.innerHTML = ''; return; }
+  dots.innerHTML = Array.from({ length: total }, (_, i) =>
+    `<span class="dot ${i === slideIndex ? 'active' : ''}"></span>`
+  ).join('');
 }
 
 function closeDetail() {
@@ -82,32 +114,28 @@ navTabs.forEach(tab => {
 });
 
 sliderPrev.addEventListener('click', () => {
-  if (detailIndex > 0) {
-    detailIndex--;
-    renderDetail();
-  }
+  if (slideIndex > 0) { slideIndex--; renderDetail(); }
 });
 
 sliderNext.addEventListener('click', () => {
-  if (detailIndex < detailPhotos.length - 1) {
-    detailIndex++;
-    renderDetail();
-  }
+  const images = detailPhotos[detailIndex]?.images || [detailPhotos[detailIndex]?.src];
+  if (slideIndex < images.length - 1) { slideIndex++; renderDetail(); }
 });
 
 closeBtn.addEventListener('click', closeDetail);
 
-// Close on background click
 detailView.addEventListener('click', (e) => {
   if (e.target === detailView) closeDetail();
 });
 
-// Keyboard navigation
 document.addEventListener('keydown', (e) => {
   if (detailView.classList.contains('hidden')) return;
   if (e.key === 'Escape') closeDetail();
-  if (e.key === 'ArrowLeft' && detailIndex > 0) { detailIndex--; renderDetail(); }
-  if (e.key === 'ArrowRight' && detailIndex < detailPhotos.length - 1) { detailIndex++; renderDetail(); }
+  if (e.key === 'ArrowLeft'  && slideIndex > 0) { slideIndex--; renderDetail(); }
+  if (e.key === 'ArrowRight') {
+    const images = detailPhotos[detailIndex]?.images || [detailPhotos[detailIndex]?.src];
+    if (slideIndex < images.length - 1) { slideIndex++; renderDetail(); }
+  }
 });
 
 // ── Init ───────────────────────────────────────

@@ -274,6 +274,26 @@ main {
   color: var(--black);
 }
 
+/* Dot indicator */
+.slide-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gray-mid);
+  transition: background 0.2s;
+}
+
+.dot.active {
+  background: var(--black);
+}
+
 /* ── DETAIL HEADER (logo + nav inside detail) ── */
 #detail-view header,
 #detail-view nav {
