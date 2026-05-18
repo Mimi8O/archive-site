@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARchive.</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">ARchive.</div>
+  </header>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <button class="nav-tab active" data-cat="fujifilm">Fujifilm X-E5</button>
+      <button class="nav-tab" data-cat="sony">SONY ZV-1</button>
+      <button class="nav-tab" data-cat="etc">Etc.</button>
+    </div>
+  </nav>
+
+  <!-- GALLERY -->
+  <main id="gallery-view">
+    <div class="grid" id="photo-grid"></div>
+  </main>
+
+  <!-- DETAIL VIEW -->
+  <div id="detail-view" class="hidden">
+    <div class="detail-inner">
+      <!-- Left: photo slider -->
+      <div class="detail-photo-wrap">
+        <div class="photo-slider" id="detail-slider">
+          <img id="detail-img" src="" alt="" />
+        </div>
+        <button class="slider-btn prev" id="slider-prev">‹</button>
+        <button class="slider-btn next" id="slider-next">›</button>
+        <div class="detail-meta">
+          <span id="detail-title"></span><br/>
+          <span id="detail-date"></span><br/>
+          <span id="detail-camera"></span>
+        </div>
+      </div>
+      <!-- Right: note card -->
+      <div class="detail-note-wrap">
+        <div class="note-card">
+          <p class="note-text" id="detail-note"></p>
+          <span class="note-page" id="detail-page"></span>
+        </div>
+      </div>
+    </div>
+    <button class="close-btn" id="close-detail">✕</button>
+  </div>
+
+  <script src="photos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
